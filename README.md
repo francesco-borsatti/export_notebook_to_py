@@ -8,8 +8,4 @@ You can add the function `export_notebook()` to your notebook and just run the c
 - `notebook_path` : [str] - the path of the notebook of which you want to export marked code cells.
 - `out_dir_path` : [str] - output directory path, if none is given it defaults to same directory of the selected notebook.
 - `out_file_name` : [str] - output python script file name, if none is given it defaults to the name of the selected notebook.
-<<<<<<< HEAD
 - `put_imports_on_top` : [bool] - Whether to put import lines at the top of the python script file. Default value = False.
-=======
-- `put_imports_on_top` : [bool] - Whether to put import lines at the top of the python script file. Default value = False.
->>>>>>> d2ce496ff64d456f0f1e18b2ea3917e35b2f2698
