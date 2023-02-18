@@ -1,8 +1,15 @@
 #### THIS FILE WAS AUTOMATICALLY GENERATED - DO NOT EDIT ####
-#### Edit source notebook instead: ./export_notebook.ipynb
+# Edit source notebook instead: ./export_notebook.ipynb
+
 import json
-import os
 import ast
+import os
+
+
+# message colors
+GREEN = lambda x: '\033[92m' + x + '\033[0m'
+BOLD = lambda x: '\033[1m'  + x + '\033[0m'
+RED = lambda x: '\033[91m' + x + '\033[0m'
 
 def line_contains_import(line):
     try:
@@ -15,10 +22,19 @@ def line_contains_import(line):
     return False
 
 
+def ask_confirm_export(notebook_path:str, out_file_path:str) -> None:
+    confirm_export = input('Are you sure you want to export' +
+                    f'the notebook [{notebook_path}]' + 
+                    f'to [{out_file_path}] ? (y/N) \n')
+    if confirm_export.lower() not in ['y', 'yes']:
+        print(RED('Export aborted.'))
+        return
+
+
 def export_notebook(notebook_path:str, 
                     out_dir_path:str = '', 
                     out_file_name:str = '',
-                    put_imports_on_top:bool = True) -> None:
+                    put_imports_on_top:bool = False) -> None:
     """
     Given a notebook file path, exports only code cells whose first line
     is: #_CELL_TO_EXPORT_#
@@ -30,15 +46,10 @@ def export_notebook(notebook_path:str,
     - Put imports on top set to true if you want all the imports to be placed
     at the top of the script file.
 
-    Example use: export_notebook(notebook_path='./this_notebook.ipynb',
-                        output_dir_path='../folder/',
-                        output_file_name='python_script.py')
+    Example use: export_notebook(notebook_path='./this_notebook.ipynb', 
+        output_dir_path='../folder/', 
+        output_file_name='python_script.py')
     """
-
-    # message colors
-    GREEN = lambda x: '\033[92m' + x + '\033[0m'
-    BOLD = lambda x: '\033[1m'  + x + '\033[0m'
-    RED = lambda x: '\033[91m' + x + '\033[0m'
 
     print('[[[[', GREEN(BOLD('EXPORT NOTEBOOK TO PY')), ']]]]')
 
@@ -61,25 +72,17 @@ def export_notebook(notebook_path:str,
 
     out_file_path = os.path.join(out_dir_path, out_file_name)
 
-    confirm_export = input('Are you sure you want to export' +
-                        f'the notebook [{notebook_path}]' + 
-                        f'to [{out_file_path}] ? (y/N) \n')
-    if confirm_export.lower() not in ['y', 'yes']:
-        print(RED('Export aborted.'))
-        return
+    # ask the user for if they want to continue
+    ask_confirm_export(notebook_path, out_file_path)
 
     print('Notebook path:', notebook_path)
     print('Output file path:', out_file_path)
     
     # output file buffer
     buffer = []
-    # place a warning message at the top of the file
-    buffer.append( '#### THIS FILE WAS AUTOMATICALLY GENERATED - DO NOT EDIT ####\n')
-    buffer.append(f'#### Edit source notebook instead: {notebook_path}\n')
 
-    # keep track of the number of imports in the file
-    # to place them in order at the top
-    num_of_imports = len([c for c in buffer if '\n' in c])
+    # keep track of the number of imports in the file to place them in order at the top
+    import_lines = []
 
     with open(notebook_path, 'r') as f:
         data = json.load(f)
@@ -97,17 +100,28 @@ def export_notebook(notebook_path:str,
             # skip the first line (which contains #_CELL_TO_EXPORT_#)
             for line in cell['source'][1:]:
                 # if line contains import statement
-                if line_contains_import(line) and put_imports_on_top:
-                    buffer.insert(num_of_imports, line)
-                    num_of_imports = num_of_imports + 1
+                if put_imports_on_top and line_contains_import(line):
+                    import_lines.append(line.replace('\n',''))
                     continue
                 # normal lines are appended at the end
                 buffer.append(line)
             # put a new line at the end of cells
             buffer.append('\n')
 
-    # write buffer to output file
+    # place a warning message at the top of the file
+    initial_message = ['#### THIS FILE WAS AUTOMATICALLY GENERATED - DO NOT EDIT ####\n',
+                       f'# Edit source notebook instead: {notebook_path}\n\n']
+
+    # write buffers to output file
     with open(out_file_path, 'w') as out_file:
+        for line in initial_message:
+            out_file.write(line)
+        # nicely place imports
+        if put_imports_on_top:
+            for line in import_lines:
+                out_file.write(line + '\n')
+            out_file.write('\n')
+
         for line in buffer:
             out_file.write(line)
     
