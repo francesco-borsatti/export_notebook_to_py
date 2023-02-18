@@ -31,6 +31,39 @@ def ask_confirm_export(notebook_path:str, out_file_path:str) -> None:
         return
 
 
+def clean_newlines(filepath:str):
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+
+    # Remove consecutive empty lines
+    new_lines = []
+    empty_count = 0
+    for line in lines:
+
+        if line == '\n':
+            empty_count += 1
+            if empty_count > 2:
+                continue
+        else:
+            empty_count = 0
+
+        new_lines.append(line)
+    
+    # remove excessive last newlines
+    i = 1
+    try:
+        while new_lines[-i] == '\n':
+            i += 1
+            print("last newline found")
+    except IndexError:
+        pass
+
+    new_lines = new_lines[:-empty_count]    
+
+    # Write the new lines to the file
+    with open(filepath, 'w') as f:
+        f.writelines(new_lines)
+
 
 def export_notebook(notebook_path:str, 
                     out_dir_path:str = '', 
@@ -108,16 +141,12 @@ def export_notebook(notebook_path:str,
                 buffer.append(line)
             # put a new line at the end of cells
             buffer.append('\n\n')
-            print('newline ok')
-
-    # remove last excessive newline
-    buffer = buffer[:-1]
 
     # place a warning message at the top of the file
     initial_message = ['#### THIS FILE WAS AUTOMATICALLY GENERATED - DO NOT EDIT ####\n',
                        f'# Edit source notebook instead: {notebook_path}\n\n']
 
-    # write buffers to output file
+    # save final lines to another buffer to output file
     with open(out_file_path, 'w') as out_file:
         for line in initial_message:
             out_file.write(line)
@@ -129,6 +158,9 @@ def export_notebook(notebook_path:str,
         # write the rest of the file
         for line in buffer:
             out_file.write(line)
+
+    # clean file from excessive newlines
+    clean_newlines(out_file_path)
     
     # process ended
     print('[-----', GREEN('Export  completed') ,'-----]')
