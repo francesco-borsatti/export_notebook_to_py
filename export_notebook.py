@@ -22,13 +22,17 @@ def line_contains_import(line):
     return False
 
 
-def ask_confirm_export(notebook_path:str, out_file_path:str) -> None:
+def user_approval(notebook_path:str, out_file_path:str) -> bool:
+    """
+    Returns true if user wants to perform the notebook export.
+    """
     confirm_export = input('Are you sure you want to export' +
                     f'the notebook [{notebook_path}]' + 
                     f'to [{out_file_path}] ? (y/N) \n')
     if confirm_export.lower() not in ['y', 'yes']:
         print(RED('Export aborted.'))
-        return
+        return False
+    return True
 
 
 def clean_newlines(filepath:str):
@@ -54,7 +58,6 @@ def clean_newlines(filepath:str):
     try:
         while new_lines[-i] == '\n':
             i += 1
-            print("last newline found")
     except IndexError:
         pass
 
@@ -107,7 +110,8 @@ def export_notebook(notebook_path:str,
     out_file_path = os.path.join(out_dir_path, out_file_name)
 
     # ask the user for if they want to continue
-    ask_confirm_export(notebook_path, out_file_path)
+    if not user_approval(notebook_path, out_file_path):
+        return
 
     print('Notebook path:', notebook_path)
     print('Output file path:', out_file_path)
