@@ -106,7 +106,11 @@ def export_notebook(notebook_path:str,
                 # normal lines are appended at the end
                 buffer.append(line)
             # put a new line at the end of cells
-            buffer.append('\n')
+            buffer.append('\n\n')
+            print('newline ok')
+
+    # remove last excessive newline
+    buffer = buffer[:-1]
 
     # place a warning message at the top of the file
     initial_message = ['#### THIS FILE WAS AUTOMATICALLY GENERATED - DO NOT EDIT ####\n',
@@ -121,10 +125,9 @@ def export_notebook(notebook_path:str,
             for line in import_lines:
                 out_file.write(line + '\n')
             out_file.write('\n')
-
+        # write the rest of the file
         for line in buffer:
             out_file.write(line)
     
     # process ended
     print('[-----', GREEN('Export  completed') ,'-----]')
-
