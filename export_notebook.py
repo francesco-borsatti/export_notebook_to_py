@@ -40,7 +40,7 @@ def clean_newlines(filepath:str):
         lines = f.readlines()
 
     # Remove consecutive empty lines
-    new_lines = []
+    new_file_buffer = []
     empty_count = 0
     for line in lines:
 
@@ -51,21 +51,21 @@ def clean_newlines(filepath:str):
         else:
             empty_count = 0
 
-        new_lines.append(line)
+        new_file_buffer.append(line)
     
-    # remove excessive last newlines
+    # remove excessive last empty lines
     i = 1
     try:
-        while new_lines[-i] == '\n':
+        while new_file_buffer[-i] == '\n':
             i += 1
     except IndexError:
         pass
 
-    new_lines = new_lines[:-empty_count]    
+    new_file_buffer = new_file_buffer[:-empty_count]    
 
     # Write the new lines to the file
     with open(filepath, 'w') as f:
-        f.writelines(new_lines)
+        f.writelines(new_file_buffer)
 
 
 def export_notebook(notebook_path:str, 
@@ -163,7 +163,7 @@ def export_notebook(notebook_path:str,
         for line in buffer:
             out_file.write(line)
 
-    # clean file from excessive newlines
+    # clean file from excessive empty lines
     clean_newlines(out_file_path)
     
     # process ended
