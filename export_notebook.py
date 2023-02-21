@@ -74,7 +74,7 @@ def export_notebook(notebook_path:str,
                     put_imports_on_top:bool = False) -> None:
     """
     Given a notebook file path, exports only code cells whose first line
-    is: #_CELL_TO_EXPORT_#
+    is: # EXPORT_CELL #
     
     - The output directory path is optional, if none is chose it defaults
     to the same directory.
@@ -132,10 +132,10 @@ def export_notebook(notebook_path:str,
             if not cell['source']:
                 continue
             # skip non marked cells
-            if '#_CELL_TO_EXPORT_#' not in cell['source'][0]:
+            if '# EXPORT_CELL #' not in cell['source'][0]:
                 continue
             # -- Cell to be exported -- read line by line:
-            # skip the first line (which contains #_CELL_TO_EXPORT_#)
+            # skip the first line (which contains # EXPORT_CELL #)
             for line in cell['source'][1:]:
                 # if line contains import statement
                 if put_imports_on_top and line_contains_import(line):
