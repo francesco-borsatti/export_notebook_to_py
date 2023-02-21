@@ -30,7 +30,7 @@ def user_approval(notebook_path:str, out_file_path:str) -> bool:
                     f'the notebook [{notebook_path}]' + 
                     f'to [{out_file_path}] ? (y/N) \n')
     if confirm_export.lower() not in ['y', 'yes']:
-        print(RED('Export aborted.'))
+        print('[------', RED('Export canceled'), '------]')
         return False
     return True
 
@@ -167,4 +167,4 @@ def export_notebook(notebook_path:str,
     clean_newlines(out_file_path)
     
     # process ended
-    print('[-----', GREEN('Export  completed') ,'-----]')
+    print('[-----', GREEN('Export  completed'), '-----]')
