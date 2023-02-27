@@ -131,12 +131,25 @@ def export_notebook(notebook_path:str,
             # skip empty cells
             if not cell['source']:
                 continue
-            # skip non marked cells
-            if '# EXPORT_CELL #' not in cell['source'][0]:
+            # check if marked cell
+            # skip first empty lines
+            cell_to_export = False
+            # keep record of the line in which appears # EXPORT_CELL #
+            num_lines_to_skip = 0
+            for line_number, line in enumerate(cell['source']):
+                if not line.strip():
+                    continue
+                if '# EXPORT_CELL #' in line:
+                    cell_to_export = True
+                    num_lines_to_skip = line_number
+                    break
+            # skip this cell if it's not to export
+            if not cell_to_export:
                 continue
             # -- Cell to be exported -- read line by line:
-            # skip the first line (which contains # EXPORT_CELL #)
-            for line in cell['source'][1:]:
+            # skip the first 'num_lines_to_skip+1' lines (which contain '' or # EXPORT_CELL #)
+            num_lines_to_skip += 1
+            for line in cell['source'][num_lines_to_skip:]:
                 # if line contains import statement
                 if put_imports_on_top and line_contains_import(line):
                     import_lines.append(line.replace('\n',''))
